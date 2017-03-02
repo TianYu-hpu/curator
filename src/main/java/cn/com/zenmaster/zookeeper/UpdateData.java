@@ -7,11 +7,11 @@ import org.apache.curator.retry.RetryUntilElapsed;
 import org.apache.zookeeper.data.Stat;
 
 /**
- * 创建节点
+ * 修改数据
  * @author TianYu
  *
  */
-public class GetData {
+public class UpdateData {
 
 	public static void main(String[] args) {
 		try {
@@ -36,13 +36,10 @@ public class GetData {
 										.retryPolicy(retryPolicy)
 										.build();
 			client.start();
-			byte[] data = client.getData().forPath("/curator");
+			
 			Stat stat = new Stat();
 			client.getData().storingStatIn(stat).forPath("curator");
-			
-			System.out.println(new String(data));
-			
-			System.out.println(stat);
+			client.setData().withVersion(stat.getVersion()).forPath("/curator", "new_curator_data".getBytes());
 			
 			Thread.sleep(Long.MAX_VALUE);
 		} catch (InterruptedException e) {

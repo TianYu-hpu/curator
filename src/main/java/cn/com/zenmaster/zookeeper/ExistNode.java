@@ -11,7 +11,7 @@ import org.apache.zookeeper.data.Stat;
  * @author TianYu
  *
  */
-public class GetData {
+public class ExistNode {
 
 	public static void main(String[] args) {
 		try {
@@ -36,12 +36,10 @@ public class GetData {
 										.retryPolicy(retryPolicy)
 										.build();
 			client.start();
-			byte[] data = client.getData().forPath("/curator");
-			Stat stat = new Stat();
-			client.getData().storingStatIn(stat).forPath("curator");
+			System.out.println("连接成功");
 			
-			System.out.println(new String(data));
-			
+			Stat stat = client.checkExists()
+							.forPath("/curator");
 			System.out.println(stat);
 			
 			Thread.sleep(Long.MAX_VALUE);

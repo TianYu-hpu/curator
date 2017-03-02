@@ -4,14 +4,13 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryUntilElapsed;
-import org.apache.zookeeper.data.Stat;
 
 /**
  * 创建节点
  * @author TianYu
  *
  */
-public class GetData {
+public class DeleteNode {
 
 	public static void main(String[] args) {
 		try {
@@ -36,13 +35,9 @@ public class GetData {
 										.retryPolicy(retryPolicy)
 										.build();
 			client.start();
-			byte[] data = client.getData().forPath("/curator");
-			Stat stat = new Stat();
-			client.getData().storingStatIn(stat).forPath("curator");
+			System.out.println("连接成功");
 			
-			System.out.println(new String(data));
-			
-			System.out.println(stat);
+			client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(-1).forPath("/curator");
 			
 			Thread.sleep(Long.MAX_VALUE);
 		} catch (InterruptedException e) {

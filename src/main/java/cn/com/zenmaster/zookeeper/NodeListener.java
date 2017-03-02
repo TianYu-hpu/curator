@@ -3,15 +3,16 @@ package cn.com.zenmaster.zookeeper;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.NodeCache;
+import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.curator.retry.RetryUntilElapsed;
-import org.apache.zookeeper.data.Stat;
 
 /**
  * 创建节点
  * @author TianYu
  *
  */
-public class GetData {
+public class NodeListener {
 
 	public static void main(String[] args) {
 		try {
@@ -36,14 +37,17 @@ public class GetData {
 										.retryPolicy(retryPolicy)
 										.build();
 			client.start();
-			byte[] data = client.getData().forPath("/curator");
-			Stat stat = new Stat();
-			client.getData().storingStatIn(stat).forPath("curator");
+			System.out.println("连接成功");
 			
-			System.out.println(new String(data));
-			
-			System.out.println(stat);
-			
+			final NodeCache cache = new NodeCache(client, "/curator");
+			cache.start();
+			cache.getListenable().addListener(new NodeCacheListener() {
+				
+				public void nodeChanged() throws Exception {
+					byte[] ret = cache.getCurrentData().getData();
+					System.out.println("new data:"+new String(ret));
+				}
+			});
 			Thread.sleep(Long.MAX_VALUE);
 		} catch (InterruptedException e) {
 			e.printStackTrace();

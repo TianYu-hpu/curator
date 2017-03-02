@@ -11,7 +11,7 @@ import org.apache.zookeeper.data.Stat;
  * @author TianYu
  *
  */
-public class GetData {
+public class GetDataAuth {
 
 	public static void main(String[] args) {
 		try {
@@ -30,15 +30,16 @@ public class GetData {
 			
 			CuratorFramework client = CuratorFrameworkFactory
 										.builder()
-										.connectString("192.168.0.30")
+										.connectString("192.168.0.30:2181")
 										.connectionTimeoutMs(1000)
 										.sessionTimeoutMs(1000)
+										.authorization("ip", "192.168.0.30".getBytes())
 										.retryPolicy(retryPolicy)
 										.build();
 			client.start();
 			byte[] data = client.getData().forPath("/curator");
 			Stat stat = new Stat();
-			client.getData().storingStatIn(stat).forPath("curator");
+			client.getData().storingStatIn(stat).forPath("/curator");
 			
 			System.out.println(new String(data));
 			

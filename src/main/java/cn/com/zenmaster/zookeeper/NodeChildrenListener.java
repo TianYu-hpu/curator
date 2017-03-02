@@ -3,15 +3,17 @@ package cn.com.zenmaster.zookeeper;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.RetryUntilElapsed;
-import org.apache.zookeeper.data.Stat;
 
 /**
  * 创建节点
  * @author TianYu
  *
  */
-public class GetData {
+public class NodeChildrenListener {
 
 	public static void main(String[] args) {
 		try {
@@ -36,20 +38,35 @@ public class GetData {
 										.retryPolicy(retryPolicy)
 										.build();
 			client.start();
-			byte[] data = client.getData().forPath("/curator");
-			Stat stat = new Stat();
-			client.getData().storingStatIn(stat).forPath("curator");
+			System.out.println("连接成功");
 			
-			System.out.println(new String(data));
-			
-			System.out.println(stat);
-			
+			final PathChildrenCache cache = new PathChildrenCache(client, "/curator", true);
+			cache.start();
+			cache.getListenable().addListener(new PathChildrenCacheListener() {
+				
+				public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+					switch (event.getType()) {
+					case CHILD_ADDED:
+						System.out.println("CHILD_ADDED:"+event.getData());
+						break;
+					case CHILD_UPDATED:
+						System.out.println("CHILD_UPDATED:"+event.getData());
+						break;
+					case CHILD_REMOVED:
+						System.out.println("CHILD_REMOVED:"+event.getData());
+						break;
+					default:
+						break;
+					}
+				}
+			});
 			Thread.sleep(Long.MAX_VALUE);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 
